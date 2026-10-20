@@ -10,6 +10,7 @@ page 70013 "Training API"
     SourceTable = "Training Table";
     ODataKeyFields = SystemId;
     DelayedInsert = true;
+    InsertAllowed = true;
 
     layout
     {
@@ -30,4 +31,27 @@ page 70013 "Training API"
             }
         }
     }
+
+    trigger OnAfterGetRecord()
+    begin
+        HandleReadRecord();
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        ValidateNewTrainingCourse();
+        // Let the API framework insert the record; do not call Rec.Insert here.
+        exit(true);
+    end;
+
+    local procedure HandleReadRecord()
+    begin
+        // Read hook: place a breakpoint here or add read-only calculations.
+        // This is a record lifecycle hook, not an exclusive HTTP GET handler.
+    end;
+
+    local procedure ValidateNewTrainingCourse()
+    begin
+        Rec.TestField("No.");
+    end;
 }
