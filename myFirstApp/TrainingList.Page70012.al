@@ -65,12 +65,38 @@ page 70012 "Training Course List"
     {
         area(Processing)
         {
-            action(ShowAPIRequests)
+            action(ShowGETRequest)
             {
-                Caption = 'Show GET / POST Requests';
+                Caption = 'Show GET Request';
                 ApplicationArea = All;
                 Image = Web;
-                ToolTip = 'Show the Training API endpoint for the current company and a sample POST body.';
+                ToolTip = 'Show the GET request endpoint for the current company.';
+
+                trigger OnAction()
+                var
+                    CurrentCompany: Record Company;
+                    Endpoint: Text;
+                begin
+                    CurrentCompany.Get(CompanyName());
+                    Endpoint :=
+                        'https://api.businesscentral.dynamics.com/v2.0/' +
+                        '19f16416-6c91-4c4b-8d75-43a20b8e8f13/June9/' +
+                        'api/quinn/training/v1.0/companies(' +
+                        LowerCase(DelChr(Format(CurrentCompany.SystemId), '=', '{}')) +
+                        ')/trainingCourses';
+
+                    Message(
+                        'Company: %1\GET %2\This request requires a valid Bearer token. No HTTP request has been sent.',
+                        CurrentCompany.Name, Endpoint);
+                end;
+            }
+
+            action(ShowPOSTRequest)
+            {
+                Caption = 'Show POST Request';
+                ApplicationArea = All;
+                Image = Web;
+                ToolTip = 'Show the POST request endpoint and a sample body for the current company.';
 
                 trigger OnAction()
                 var
@@ -92,7 +118,7 @@ page 70012 "Training Course List"
                     SampleBody.WriteTo(SampleBodyText);
 
                     Message(
-                        'Company: %1\GET %2\POST %2\Content-Type: application/json\Body: %3\Both requests require a valid Bearer token. No HTTP request has been sent. Use an unused number for POST.',
+                        'Company: %1\POST %2\Content-Type: application/json\Body: %3\This request requires a valid Bearer token. No HTTP request has been sent. Use an unused number for POST.',
                         CurrentCompany.Name, Endpoint, SampleBodyText);
                 end;
             }
